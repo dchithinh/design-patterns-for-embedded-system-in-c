@@ -1,0 +1,10 @@
+@startuml
+title Chapter 2.02 - Observer Pattern Overview
+
+note as N1
+This chapter model is split into two preview-friendly files:
+- observer-class-diagram.puml
+- observer-sequence-diagram.puml
+end note
+
+@enduml

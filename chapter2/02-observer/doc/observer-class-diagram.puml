@@ -1,0 +1,94 @@
+@startuml
+title Chapter 2.02 - Observer Pattern Class Model
+
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam linetype ortho
+
+package "chapter2/02-observer" {
+
+class TestBuilder {
+  +itsECG_Module : ECG_Module
+  +itsHistogramDisplay : HistogramDisplay
+  +itsTMDQueue : TMDQueue
+  --
+  +Init()
+  +Cleanup()
+}
+
+class ECG_Module {
+  +dataNum : int
+  +lead1 : int
+  +lead2 : int
+  +itsTMDQueue : TMDQueue*
+  --
+  +acquireValue()
+  +setLeadPair(l1, l2)
+}
+
+class TMDQueue {
+  +head : int
+  +nSubscribers : int
+  +size : int
+  +buffer[QUEUE_SIZE] : TimeMarkedData
+  +itsNotificationHandle : NotificationHandle*
+  --
+  +insert(tmd)
+  +notify(tmd)
+  +remove(index)
+  +subscribe(updateFuncAddr)
+  +unsubscribe(updateFuncAddr)
+  +getNextIndex(index)
+  +isEmpty()
+}
+
+class NotificationHandle {
+  +updateAddr : UpdateFuncPtr
+  +itsNotificationHandle : NotificationHandle*
+}
+
+class HistogramDisplay {
+  +index : int
+  +itsTMDQueue : TMDQueue*
+  --
+  +getValue()
+  +update(tmd)
+  +updateHistogram()
+}
+
+class TimeMarkedData {
+  +timeInterval : int
+  +dataValue : int
+  +itsTMDQueue : TMDQueue*
+}
+
+class main {
+  +main(argc, argv)
+}
+
+}
+
+main --> TestBuilder : creates
+TestBuilder *-- ECG_Module
+TestBuilder *-- HistogramDisplay
+TestBuilder *-- TMDQueue
+
+ECG_Module --> TMDQueue : inserts samples into
+HistogramDisplay --> TMDQueue : subscribes to
+TMDQueue o-- "0..*" NotificationHandle : subscriber list
+TMDQueue *-- "QUEUE_SIZE" TimeMarkedData : circular buffer
+TimeMarkedData --> TMDQueue : belongs to
+
+note right of TMDQueue
+Leaky circular queue:
+- new samples overwrite oldest slots
+- multiple observers can read the same data
+- insert() triggers notify()
+end note
+
+note right of NotificationHandle
+Each node stores one callback and
+links to the next subscriber.
+end note
+
+@enduml

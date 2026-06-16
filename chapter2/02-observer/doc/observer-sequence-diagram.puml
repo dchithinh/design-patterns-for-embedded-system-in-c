@@ -1,0 +1,31 @@
+@startuml
+title Chapter 2.02 - Observer Notification Flow
+
+actor User
+participant main
+participant TestBuilder
+participant ECG_Module
+participant TMDQueue
+participant NotificationHandle
+participant HistogramDisplay
+
+User -> main : run program
+main -> TestBuilder : Create()
+TestBuilder -> ECG_Module : Init()
+TestBuilder -> HistogramDisplay : Init()
+TestBuilder -> TMDQueue : Init()
+TestBuilder -> ECG_Module : setItsTMDQueue()
+TestBuilder -> HistogramDisplay : setItsTMDQueue()
+
+loop for each sample
+  main -> ECG_Module : acquireValue()
+  ECG_Module -> ECG_Module : build TimeMarkedData
+  ECG_Module -> TMDQueue : insert(tmd)
+  TMDQueue -> TMDQueue : store in circular buffer
+  TMDQueue -> NotificationHandle : traverse subscribers
+  NotificationHandle -> HistogramDisplay : update(tmd)
+end
+
+main -> TestBuilder : Destroy()
+
+@enduml

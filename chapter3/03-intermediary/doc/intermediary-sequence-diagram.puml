@@ -1,0 +1,56 @@
+@startuml
+title Chapter 3.03 - Intermediary Pattern Runtime Flow
+
+skinparam responseMessageBelowArrow true
+
+actor User
+participant main
+participant RobotArmManager
+participant Action
+participant RotatingArmJoint
+participant SlidingArmJoint
+participant GraspingManipulator
+
+User -> main : run program
+main -> RobotArmManager : Create()
+
+main -> RobotArmManager : computeTrajectory(x, y, z, t)
+RobotArmManager -> RobotArmManager : clear old actions
+loop for each planned step
+  RobotArmManager -> Action : Create()
+  Action --> RobotArmManager : action step
+end
+
+main -> RobotArmManager : graspAt(x, y, z, t)
+RobotArmManager -> RobotArmManager : zero()
+loop all rotating joints
+  RobotArmManager -> RotatingArmJoint : zero()
+end
+loop all sliding joints
+  RobotArmManager -> SlidingArmJoint : zero()
+end
+RobotArmManager -> GraspingManipulator : open()
+
+RobotArmManager -> RobotArmManager : computeTrajectory(x, y, z, t)
+
+loop each action step
+  RobotArmManager -> RobotArmManager : executeStep()
+  RobotArmManager -> RotatingArmJoint : rotate(target angle)
+  RobotArmManager -> SlidingArmJoint : setLength(target length)
+  RobotArmManager -> GraspingManipulator : setMaxForce(force)
+  alt manipulatorOpen == 1
+    RobotArmManager -> GraspingManipulator : open()
+  else manipulatorOpen == 0
+    RobotArmManager -> GraspingManipulator : close()
+  end
+end
+
+main -> RobotArmManager : Destroy()
+
+note right of RobotArmManager
+Clients do not coordinate individual
+joints directly. The intermediary
+computes and executes the sequence.
+end note
+
+@enduml

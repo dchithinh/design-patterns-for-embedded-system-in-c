@@ -1,10 +1,6 @@
-#ifndef GasMixer_H
-#define GasMixer_H
+#ifndef GASMIXER_H
+#define GASMIXER_H
 
-#include "iO2Sensor.h"
-#include "AcmeO2Adapter.h"
-#include "UltimateO2Adapter.h"
-
-void mixerGas();
+void mixerGas(void);
 
 #endif

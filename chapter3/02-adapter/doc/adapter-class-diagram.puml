@@ -1,0 +1,104 @@
+@startuml
+title Chapter 3.02 - Adapter Pattern Class Model
+
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam linetype polyline
+top to bottom direction
+
+together {
+  class GasMixer {
+    +mixerGas()
+  }
+
+  class GasDisplay {
+    +displayGas()
+  }
+}
+
+interface iO2Sensor {
+  +instance : void*
+  +gimmeO2Flow(instance) : int
+  +gimmeO2Conc(instance) : int
+  +destroy(instance)
+}
+
+class O2SensorFactory {
+  +Create(vendor) : iO2Sensor*
+}
+
+together {
+class AcmeO2Adapter {
+  +sensor : iO2Sensor
+  +itsAcmeO2SensorProxy : AcmeO2SensorProxy*
+  --
+  +gimmeO2Flow(instance) : int
+  +gimmeO2Conc(instance) : int
+  +destroy(instance)
+}
+
+class UltimateO2Adapter {
+  +sensor : iO2Sensor
+  +itsUltimateO2SensorProxy : UltimateO2SensorProxy*
+  --
+  +gimmeO2Flow(instance) : int
+  +gimmeO2Conc(instance) : int
+  +destroy(instance)
+}
+}
+
+together {
+  class AcmeO2SensorProxy {
+    +getO2Conc() : unsigned int
+    +getO2Flow() : unsigned long
+  }
+
+  class UltimateO2SensorProxy {
+    +accessO2Conc() : unsigned int
+    +accessGasFlow() : unsigned long
+  }
+}
+
+class main {
+  +main(argc, argv)
+}
+
+main -down-> GasDisplay : calls
+main -down-> GasMixer : calls
+
+GasDisplay -up..> iO2Sensor : uses target API
+GasMixer -up..> iO2Sensor : uses target API
+GasDisplay ..> O2SensorFactory : requests sensor
+GasMixer ..> O2SensorFactory : requests sensor
+
+O2SensorFactory -down..> AcmeO2Adapter : creates
+O2SensorFactory -down..> UltimateO2Adapter : creates
+
+AcmeO2Adapter -up..|> iO2Sensor
+UltimateO2Adapter -up..|> iO2Sensor
+
+AcmeO2Adapter *-down- AcmeO2SensorProxy : adapts
+UltimateO2Adapter *-down- UltimateO2SensorProxy : adapts
+
+note right of iO2Sensor
+Target interface expected by
+client-side code.
+end note
+
+note right of O2SensorFactory
+Factory hides concrete adapter
+selection from clients.
+end note
+
+note right of AcmeO2Adapter
+Converts Acme sensor API
+to iO2Sensor operations.
+end note
+
+note right of UltimateO2Adapter
+Converts Ultimate sensor API
+to iO2Sensor operations and
+applies unit conversion.
+end note
+
+@enduml

@@ -1,0 +1,64 @@
+@startuml
+title Chapter 3.02 - Adapter Pattern Runtime Flow
+
+skinparam responseMessageBelowArrow true
+
+actor User
+participant main
+participant GasDisplay
+participant GasMixer
+participant O2SensorFactory
+participant "iO2Sensor API" as IO2
+participant AcmeO2Adapter
+participant AcmeO2SensorProxy
+participant UltimateO2Adapter
+participant UltimateO2SensorProxy
+
+User -> main : run program
+
+main -> GasDisplay : displayGas()
+GasDisplay -> O2SensorFactory : Create(ACME)
+O2SensorFactory -> AcmeO2Adapter : Create()
+AcmeO2Adapter --> O2SensorFactory : iO2Sensor*
+O2SensorFactory --> GasDisplay : iO2Sensor*
+GasDisplay -> O2SensorFactory : Create(ULTIMATE)
+O2SensorFactory -> UltimateO2Adapter : Create()
+UltimateO2Adapter --> O2SensorFactory : iO2Sensor*
+O2SensorFactory --> GasDisplay : iO2Sensor*
+GasDisplay -> IO2 : gimmeO2Conc()
+IO2 -> AcmeO2Adapter : gimmeO2Conc(instance)
+AcmeO2Adapter -> AcmeO2SensorProxy : getO2Conc()
+AcmeO2SensorProxy --> AcmeO2Adapter : vendor value
+GasDisplay -> IO2 : gimmeO2Flow()
+IO2 -> AcmeO2Adapter : gimmeO2Flow(instance)
+AcmeO2Adapter -> AcmeO2SensorProxy : getO2Flow()
+AcmeO2SensorProxy --> AcmeO2Adapter : vendor flow
+GasDisplay -> IO2 : gimmeO2Conc()/gimmeO2Flow()
+IO2 -> UltimateO2Adapter : adapter callbacks
+UltimateO2Adapter -> UltimateO2SensorProxy : vendor calls
+UltimateO2SensorProxy --> UltimateO2Adapter : raw values
+GasDisplay -> IO2 : Destroy()
+
+main -> GasMixer : mixerGas()
+GasMixer -> O2SensorFactory : Create(ACME / ULTIMATE)
+O2SensorFactory --> GasMixer : iO2Sensor* instances
+GasMixer -> IO2 : gimmeO2Conc()/gimmeO2Flow()
+IO2 -> AcmeO2Adapter : adapter callbacks
+AcmeO2Adapter -> AcmeO2SensorProxy : vendor calls
+AcmeO2SensorProxy --> AcmeO2Adapter : raw values
+IO2 -> UltimateO2Adapter : adapter callbacks
+UltimateO2Adapter -> UltimateO2SensorProxy : vendor calls
+UltimateO2SensorProxy --> UltimateO2Adapter : raw values
+GasMixer -> IO2 : Destroy()
+
+note right of GasDisplay
+Client code uses the target
+interface, not concrete adapters.
+end note
+
+note right of O2SensorFactory
+Concrete adapter selection lives
+outside the client.
+end note
+
+@enduml

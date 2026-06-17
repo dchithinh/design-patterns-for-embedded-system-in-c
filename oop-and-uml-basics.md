@@ -832,4 +832,4 @@ If everything feels abstract, use this:
 - triangle = is-a / implements
 - sequence arrow = runtime call
 
-If you want, I can next add a root-level [uml-legend.puml](/home/thinhdo/learn/design-patterns-for-embedded-system-in-c/uml-legend.puml) that visually demonstrates every arrow type in one previewable diagram.
+If you want, I can next add a root-level [uml-legend.puml](uml-legend.puml) that visually demonstrates every arrow type in one previewable diagram.

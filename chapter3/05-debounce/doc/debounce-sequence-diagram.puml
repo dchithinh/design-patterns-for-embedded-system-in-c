@@ -1,0 +1,44 @@
+@startuml
+title Chapter 3.05 - Debouncing Pattern Runtime Flow
+
+skinparam responseMessageBelowArrow true
+
+actor User
+participant main
+participant ButtonDriver
+participant Timer
+participant Button
+participant MicrowaveEmitter
+
+User -> main : run program
+main -> ButtonDriver : eventReceive()
+ButtonDriver -> Timer : delay(DEBOUNCE_TIME)
+ButtonDriver -> Button : getState()
+
+alt stable state changed
+  ButtonDriver -> ButtonDriver : compare with oldState
+  ButtonDriver -> ButtonDriver : update oldState
+
+  alt button release detected
+    alt toggleOn == 0
+      ButtonDriver -> Button : backlight(1)
+      ButtonDriver -> MicrowaveEmitter : startEmitting()
+      ButtonDriver -> ButtonDriver : toggleOn = 1
+    else toggleOn == 1
+      ButtonDriver -> Button : backlight(0)
+      ButtonDriver -> MicrowaveEmitter : stopEmitting()
+      ButtonDriver -> ButtonDriver : toggleOn = 0
+    end
+  else button push only
+    note right of ButtonDriver
+    Push is ignored in this example.
+    Action happens on release.
+    end note
+  end
+else state unchanged after delay
+  note right of ButtonDriver
+  Treat as bounce/noise and ignore.
+  end note
+end
+
+@enduml

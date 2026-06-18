@@ -1,0 +1,82 @@
+@startuml
+title Chapter 3.05 - Debouncing Pattern Class Model
+
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam linetype polyline
+top to bottom direction
+
+together {
+  class main {
+    +main(argc, argv)
+  }
+
+  class ButtonDriver {
+    +oldState : unsigned char
+    +toggleOn : unsigned char
+    +itsButton : Button*
+    +itsMicrowaveEmitter : MicrowaveEmitter*
+    +itsTimer : Timer*
+    --
+    +eventReceive()
+  }
+}
+
+class Button {
+  +deviceState : int
+  +backlight : int
+  +buttonDriver : ButtonDriver*
+  --
+  +backlight(light)
+  +getState() : int
+}
+
+class Timer {
+  +time : int
+  --
+  +delay(time)
+}
+
+class MicrowaveEmitter {
+  +deviceState : int
+  --
+  +startEmitting()
+  +stopEmitting()
+}
+
+together {
+  Button -[hidden]-> Timer
+  Timer -[hidden]-> MicrowaveEmitter
+}
+
+main ..> ButtonDriver : drives example flow
+
+ButtonDriver --> Button : reads button state
+ButtonDriver --> Timer : waits debounce interval
+ButtonDriver --> MicrowaveEmitter : toggles output
+
+note right of ButtonDriver
+Debouncer role.
+Waits for signal stability, then
+acts only on a valid state change.
+end note
+
+note right of Button
+Physical input device.
+Its signal may bounce.
+The code also stores a back-pointer
+to ButtonDriver, but it is omitted
+here to keep the diagram readable.
+end note
+
+note right of Timer
+Provides the debounce delay
+before re-checking the input.
+end note
+
+note right of MicrowaveEmitter
+Application device controlled only
+after a validated button event.
+end note
+
+@enduml

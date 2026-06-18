@@ -1,0 +1,41 @@
+@startuml
+title Chapter 3.04 - Observer Pattern Runtime Flow
+
+skinparam responseMessageBelowArrow true
+
+actor User
+participant main
+participant DisplayClient
+participant GasSensor
+participant GasNotificationHandle
+participant GasData
+
+User -> main : run program
+main -> DisplayClient : Create()
+main -> GasSensor : Create() / allocate
+main -> DisplayClient : setItsGasSensor(sensor)
+main -> DisplayClient : register()
+DisplayClient -> GasSensor : subscribe(instancePtr, acceptPtr)
+GasSensor -> GasNotificationHandle : Create()
+GasNotificationHandle --> GasSensor : notification entry
+
+loop new sensor reading
+  main -> GasSensor : newData(flow, n2, o2)
+  GasSensor -> GasData : create/update current data
+  GasSensor -> GasSensor : notify()
+  GasSensor -> DisplayClient : accept(instance, gasData)
+  DisplayClient -> GasData : copy values locally
+  DisplayClient -> DisplayClient : show()
+end
+
+note right of DisplayClient
+Observer receives updates through
+the registered callback.
+end note
+
+note right of GasSensor
+Subject pushes fresh data to all
+registered observers.
+end note
+
+@enduml

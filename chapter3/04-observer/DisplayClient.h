@@ -17,7 +17,7 @@ void DisplayClient_Init(DisplayClient* const me);
 void DisplayClient_Cleanup(DisplayClient* const me);
 
 /* Operations */
-void DisplayClient_accept(DisplayClient* const me, struct GasData* g);
+void DisplayClient_accept(void* instancePtr, struct GasData* g);
 void DisplayClient_alarm(DisplayClient* const me, char* alarmMsg);
 void DisplayClient_register(DisplayClient* const me);
 void DisplayClient_show(DisplayClient* const me);
@@ -29,4 +29,3 @@ DisplayClient * DisplayClient_Create(void);
 void DisplayClient_Destroy(DisplayClient* const me);
 
 #endif
-

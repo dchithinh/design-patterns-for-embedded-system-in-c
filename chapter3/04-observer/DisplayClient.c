@@ -13,7 +13,9 @@ void DisplayClient_Cleanup(DisplayClient* const me) {
     cleanUpRelations(me);
 }
 
-void DisplayClient_accept(DisplayClient* const me, struct GasData* g) {
+void DisplayClient_accept(void* instancePtr, struct GasData* g) {
+    DisplayClient* me = (DisplayClient*)instancePtr;
+
     if (!me->itsGasData)
         me->itsGasData = GasData_Create();
 
@@ -28,22 +30,22 @@ void DisplayClient_accept(DisplayClient* const me, struct GasData* g) {
 void DisplayClient_alarm(DisplayClient* const me, char* alarmMsg) {
     printf("ALERT! ");
     printf("%s\n",alarmMsg);
-    printf("/n/n");
+    printf("\n");
 }
 
 void DisplayClient_register(DisplayClient* const me) {
     if (me->itsGasSensor)
-        GasSensor_subscribe(me->itsGasSensor, me, &DisplayClient_accept);
+        GasSensor_subscribe(me->itsGasSensor, me, DisplayClient_accept);
 }
 
 void DisplayClient_show(DisplayClient* const me) {
     if (me->itsGasData) {
-        printf("Gas Flow Rate = %5d/n", me->itsGasData->flowRate);
-        printf("O2 Concentration = %2d/n", me->itsGasData->N2Conc);
-        printf("N2 Concentration = %2d/n/n", me->itsGasData->N2Conc);
+        printf("Gas Flow Rate = %5d\n", me->itsGasData->flowRate);
+        printf("O2 Concentration = %2d\n", me->itsGasData->O2Conc);
+        printf("N2 Concentration = %2d\n\n", me->itsGasData->N2Conc);
     }
     else
-        printf("No data available/n/n");
+        printf("No data available\n\n");
 }
 
 struct GasData* DisplayClient_getItsGasData(const DisplayClient* const me) {
@@ -85,4 +87,3 @@ static void cleanUpRelations(DisplayClient* const me) {
             me->itsGasSensor = NULL;
     }
 }
-

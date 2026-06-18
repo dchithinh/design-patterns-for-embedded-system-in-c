@@ -46,7 +46,7 @@ void GasSensor_notify(GasSensor* const me) {
                 me->itsGasNH[pos]->acceptorPtr(me->itsGasNH[pos]->instancePtr,me->itsGasData);
 }
 
-void GasSensor_subscribe(GasSensor* const me, void * instancePtr, const gasDataAcceptorPtr* aPtr) {
+void GasSensor_subscribe(GasSensor* const me, void * instancePtr, gasDataAcceptorPtr aPtr) {
     struct GasNotificationHandle* gnh;
 
     gnh = GasNotificationHandle_Create();
@@ -55,7 +55,7 @@ void GasSensor_subscribe(GasSensor* const me, void * instancePtr, const gasDataA
     GasSensor_addItsGasNH(me, gnh);
 }
 
-void GasSensor_unsubscribe(GasSensor* const me, const gasDataAcceptorPtr* aPtr) {
+void GasSensor_unsubscribe(GasSensor* const me, gasDataAcceptorPtr aPtr) {
     int pos;
     for(pos = 0; pos < 100; ++pos) {
         if (me->itsGasNH[pos])

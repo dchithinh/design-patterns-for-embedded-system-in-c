@@ -1,0 +1,94 @@
+@startuml
+title Chapter 3.04 - Observer Pattern Class Model
+
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam linetype polyline
+top to bottom direction
+
+together {
+  class main {
+    +main(argc, argv)
+  }
+
+  class DisplayClient {
+    +itsGasData : GasData*
+    +itsGasSensor : GasSensor*
+    --
+    +accept(g)
+    +alarm(alarmMsg)
+    +register()
+    +show()
+  }
+}
+
+class GasSensor {
+  +itsGasData : GasData*
+  +itsGasNH[100] : GasNotificationHandle*
+  --
+  +newData(flow, n2, o2)
+  +notify()
+  +subscribe(instancePtr, aPtr)
+  +unsubscribe(aPtr)
+  +dumpList()
+}
+
+class GasData {
+  +N2Conc : unsigned short
+  +O2Conc : unsigned short
+  +flowRate : unsigned int
+}
+
+class GasNotificationHandle {
+  +acceptorPtr : gasDataAcceptorPtr
+  +instancePtr : void*
+}
+
+together {
+  interface "Observer Callback" as ObserverCallback {
+    +accept(instance, gasData)
+  }
+}
+
+main ..> DisplayClient : uses
+main ..> GasSensor : uses
+
+DisplayClient --> GasSensor : subscribes to
+DisplayClient --> GasData : keeps local copied data
+
+GasSensor *-- "0..99" GasNotificationHandle : subscriber entries
+GasSensor --> GasData : keeps current source data
+
+GasNotificationHandle ..> ObserverCallback : stores callback
+DisplayClient ..> ObserverCallback : provides accept()
+
+note right of GasSensor
+Subject / publisher.
+Holds the latest gas data and
+notifies registered clients.
+end note
+
+note right of DisplayClient
+Concrete observer implemented
+in the current code.
+end note
+
+note left of GasData
+This chapter uses two GasData objects conceptually:
+- GasSensor holds the current source data
+- DisplayClient keeps its own local copied data
+The client reads subject data during notification,
+then copies the values into its own state.
+end note
+
+note bottom of GasNotificationHandle
+Callback link used by the subject
+to notify a specific observer instance.
+end note
+
+note bottom of ObserverCallback
+The chapter uses a function pointer
+instead of a formal interface class.
+end note
+
+@enduml
